@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>The Animal Car Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- **FIX 2: Added bubbly font 'Fredoka One' ** -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-mustard: #A16207;
+            --header-orange: #D97706;
+            --border-brown: #78350F;
+            --btn-orange: #B45309;
+            --text-brown: #422006;
+            --text-cream: #FEF3C7;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-mustard);
+            color: var(--text-brown);
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .app-container {
+            background-color: var(--bg-mustard);
+        }
+        .game-header {
+            background-color: var(--header-orange);
+            border-bottom: 4px solid var(--border-brown);
+        }
+        .btn {
+            background-color: var(--btn-orange);
+            color: var(--text-cream);
+            border-bottom: 4px solid var(--border-brown);
+            transition: all 0.1s ease-in-out;
+        }
+        .btn:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+        .btn-red { background-color: #DC2626; border-bottom-color: #991B1B; }
+        .btn-green { background-color: #16A34A; border-bottom-color: #14532D; }
+        .modal-backdrop { background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: var(--header-orange); border: 4px solid var(--border-brown); }
+        .score-display { background-color: var(--text-cream); color: var(--border-brown); border: 2px solid var(--btn-orange); }
+        .nav-bar { background-color: var(--header-orange); border-top: 4px solid var(--border-brown); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .bubbly-font {
+            font-family: 'Fredoka One', cursive;
+        }
+    </style>
+</head>
+<body class="overscroll-none">
+
+    <div id="app-container" class="app-container h-full w-full flex flex-col">
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="hidden flex-col items-center justify-center text-center h-full p-8">
+            <!-- **FIX 1: Replaced image with styled text ** -->
+            <div class="bg-amber-100 p-6 rounded-3xl shadow-lg border-4 border-amber-800 mb-8 flex items-center justify-center w-64 h-64">
+                <h1 class="bubbly-font text-4xl font-bold text-center leading-tight text-amber-700" style="text-shadow: 2px 2px #FEF3C7;">The Animal Car Game</h1>
+            </div>
+            <button onclick="showMainScreen('game-screen')" class="btn w-full max-w-xs text-2xl font-bold py-4 rounded-xl shadow-lg mb-4">Start Game</button>
+            <button onclick="showModal('rules-modal')" class="btn w-full max-w-xs text-2xl font-bold py-4 rounded-xl shadow-lg">Rules</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden flex-col h-full">
+            <!-- Header -->
+            <header class="game-header p-4 flex justify-around items-center text-center flex-shrink-0">
+                <div>
+                    <h2 class="text-xl font-bold text-amber-900">Team 1</h2>
+                    <div id="score1" class="score-display text-4xl font-bold p-2 mt-1 rounded-lg w-32">0</div>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-amber-900">Team 2</h2>
+                    <div id="score2" class="score-display text-4xl font-bold p-2 mt-1 rounded-lg w-32">0</div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-grow p-6 overflow-y-auto no-scrollbar">
+                <div class="space-y-6 max-w-md mx-auto">
+                    <div>
+                        <label for="animal-select" class="text-lg font-semibold text-amber-900 block mb-2">Choose an Animal:</label>
+                        <select id="animal-select" class="w-full p-3 rounded-lg border-2 border-amber-800 bg-amber-100 text-amber-900 text-lg"></select>
+                    </div>
+                    <div>
+                        <label for="animal-quantity" class="text-lg font-semibold text-amber-900 block mb-2">How many did you spot?</label>
+                        <input type="number" id="animal-quantity" value="1" min="1" class="w-full p-3 rounded-lg border-2 border-amber-800 bg-amber-100 text-amber-900 text-lg">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="dead-animal-checkbox" class="h-6 w-6 rounded border-gray-300 text-amber-600 focus:ring-amber-500">
+                        <label for="dead-animal-checkbox" class="ml-3 text-lg font-semibold text-amber-900">Is the Animal Dead?</label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 pt-4">
+                        <button onclick="addScore(1)" class="btn btn-green text-xl font-bold py-4 rounded-xl shadow-lg">Add to Team 1</button>
+                        <button onclick="addScore(2)" class="btn btn-green text-xl font-bold py-4 rounded-xl shadow-lg">Add to Team 2</button>
+                    </div>
+                    <div class="pt-4 border-t-2 border-amber-700 border-dashed"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="handleGraveyard(1)" class="btn btn-red font-bold py-3 rounded-xl shadow-lg">Graveyard<br>(-20 for Team 2)</button>
+                        <button onclick="handleGraveyard(2)" class="btn btn-red font-bold py-3 rounded-xl shadow-lg">Graveyard<br>(-20 for Team 1)</button>
+                    </div>
+                    <button onclick="showModal('new-species-modal')" class="btn w-full font-bold py-4 rounded-xl shadow-lg text-xl">New Species (+50)</button>
+                </div>
+            </main>
+
+            <!-- Bottom Nav -->
+            <nav class="nav-bar p-2 flex justify-around items-center flex-shrink-0">
+                <button onclick="showMainScreen('game-screen')" class="text-amber-900 flex flex-col items-center">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                    <span class="text-xs font-semibold">Game</span>
+                </button>
+                <button onclick="showModal('rules-modal')" class="text-amber-900 flex flex-col items-center">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 110-2V4zm2 1h2v2H6V5zm4 0h2v2h-2V5zm-4 4h2v2H6V9zm4 0h2v2h-2V9zm-4 4h2v2H6v-2zm4 0h2v2h-2v-2z" clip-rule="evenodd"></path></svg>
+                    <span class="text-xs font-semibold">Rules</span>
+                </button>
+                <button onclick="showModal('end-game-modal')" class="text-amber-900 flex flex-col items-center">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                    <span class="text-xs font-semibold">End Game</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Modals (Overlays) -->
+        <div id="rules-modal" class="modal-backdrop hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="modal-content w-full max-w-lg rounded-2xl p-6 shadow-lg text-amber-900 max-h-[90vh] overflow-y-auto no-scrollbar">
+                <h2 class="text-3xl font-bold text-center mb-4">Game Rules</h2>
+                <div class="space-y-3 text-left">
+                    <p><strong>Setup:</strong> Players sit on opposite sides of the car and look out their windows.</p>
+                    <p><strong>Gameplay:</strong> Players can only spot animals on their side of the car.</p>
+                    <p><strong>Winning:</strong> Reach a score of 1000 points by the end of the car ride.</p>
+                    <h3 class="text-xl font-bold pt-2">Special Cases:</h3>
+                    <p><strong>Graveyard:</strong> Spot a graveyard, the other player loses 20 points.</p>
+                    <p><strong>New Species:</strong> See a new type of animal for 50 bonus points. Then set a future value for it.</p>
+                    <p><strong>Roadkill:</strong> A dead animal is worth half its normal points (rounded up).</p>
+                </div>
+                <button onclick="hideActiveModal()" class="btn w-full mt-6 text-xl font-bold py-3 rounded-xl shadow-lg">Got It!</button>
+            </div>
+        </div>
+        <div id="new-species-modal" class="modal-backdrop hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="modal-content w-full max-w-md rounded-2xl p-6 shadow-lg text-amber-900">
+                <h2 class="text-2xl font-bold text-center mb-4">Create New Species</h2>
+                <input type="text" id="new-species-name" placeholder="Species Name..." class="w-full p-3 mb-4 rounded-lg border-2 border-amber-800 bg-amber-100 text-amber-900">
+                <input type="number" id="new-species-value" placeholder="Point Value..." class="w-full p-3 mb-4 rounded-lg border-2 border-amber-800 bg-amber-100 text-amber-900">
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="addNewSpecies(1)" class="btn btn-green font-bold py-3 rounded-xl">Add to Team 1</button>
+                    <button onclick="addNewSpecies(2)" class="btn btn-green font-bold py-3 rounded-xl">Add to Team 2</button>
+                </div>
+                <button onclick="hideActiveModal()" class="btn w-full mt-4 font-bold py-3 rounded-xl">Cancel</button>
+            </div>
+        </div>
+        <div id="end-game-modal" class="modal-backdrop hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="modal-content w-full max-w-md rounded-2xl p-6 shadow-lg text-amber-900 text-center">
+                <h2 class="text-2xl font-bold mb-4">Attention!</h2>
+                <p class="text-lg mb-6">Are you sure you want to quit? Scores will be reset.</p>
+                <div class="flex justify-around">
+                    <button onclick="hideActiveModal()" class="btn w-32 py-3 rounded-xl font-bold">Go Back</button>
+                    <button onclick="resetGame()" class="btn btn-red w-32 py-3 rounded-xl font-bold">Quit Game</button>
+                </div>
+            </div>
+        </div>
+        <div id="winner-modal" class="modal-backdrop hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="modal-content w-full max-w-md rounded-2xl p-8 shadow-lg text-amber-900 text-center">
+                <h2 id="winner-text" class="text-4xl font-bold mb-6">Team 1 Wins!</h2>
+                <button onclick="resetGame()" class="btn w-full text-xl font-bold py-4 rounded-xl shadow-lg">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        let gameState = {};
+        const initialAnimals = {
+            'Cows': 1, 'Sheep': 2, 'Goat': 2, 'Cats': 5, 'Dogs': 5,
+            'Horses': 10, 'Doe': 10, 'Bunnies': 10, 'Pigs': 20, 'Turkeys': 20,
+            'Bucks': 30, 'Donkeys': 50, 'Alpacas': 50, 'Llamas': 50,
+            'Rams': 100, 'Peacocks': 100, 'Bald Eagle': 100, 'Army Cars': 500, 'Tanks': 1000
+        };
+
+        function initializeGameState() {
+            gameState = {
+                score1: 0,
+                score2: 0,
+                animals: { ...initialAnimals }
+            };
+        }
+
+        // --- DOM ELEMENTS ---
+        const score1El = document.getElementById('score1');
+        const score2El = document.getElementById('score2');
+        const animalSelectEl = document.getElementById('animal-select');
+        const animalQuantityEl = document.getElementById('animal-quantity');
+        const deadAnimalCheckbox = document.getElementById('dead-animal-checkbox');
+        
+        // --- UI MANAGEMENT ---
+        const mainScreens = ['home-screen', 'game-screen'];
+        const modals = ['rules-modal', 'new-species-modal', 'end-game-modal', 'winner-modal'];
+
+        function showMainScreen(screenId) {
+            mainScreens.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === screenId) {
+                    el.classList.remove('hidden');
+                    el.classList.add('flex');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            });
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.replace('hidden', 'flex');
+        }
+
+        function hideActiveModal() {
+            modals.forEach(id => document.getElementById(id).classList.replace('flex', 'hidden'));
+        }
+
+        function updateScoresUI() {
+            score1El.textContent = gameState.score1;
+            score2El.textContent = gameState.score2;
+        }
+
+        function populateAnimalDropdown() {
+            animalSelectEl.innerHTML = '';
+            // **FIX 1: Sort animals by point value**
+            const sortedAnimals = Object.entries(gameState.animals)
+                .sort(([, pointsA], [, pointsB]) => pointsA - pointsB);
+
+            sortedAnimals.forEach(([animalName, points]) => {
+                const option = document.createElement('option');
+                option.value = animalName;
+                option.textContent = `${animalName} (${points} pts)`;
+                animalSelectEl.appendChild(option);
+            });
+        }
+
+        // --- GAME LOGIC ---
+        function addScore(team) {
+            const selectedAnimal = animalSelectEl.value;
+            const quantity = parseInt(animalQuantityEl.value) || 1;
+            const isDead = deadAnimalCheckbox.checked;
+            if (!selectedAnimal) return;
+
+            let pointsPerAnimal = gameState.animals[selectedAnimal];
+            if (isDead) pointsPerAnimal = Math.ceil(pointsPerAnimal / 2);
+            
+            gameState[team === 1 ? 'score1' : 'score2'] += pointsPerAnimal * quantity;
+            
+            animalQuantityEl.value = 1;
+            deadAnimalCheckbox.checked = false;
+            updateAndSave();
+            checkForWinner();
+        }
+
+        function handleGraveyard(spottingTeam) {
+            const targetTeam = spottingTeam === 1 ? 'score2' : 'score1';
+            gameState[targetTeam] = Math.max(0, gameState[targetTeam] - 20);
+            updateAndSave();
+        }
+        
+        function addNewSpecies(team) {
+            const nameEl = document.getElementById('new-species-name');
+            const valueEl = document.getElementById('new-species-value');
+            const name = nameEl.value.trim();
+            const value = parseInt(valueEl.value);
+
+            if (!name || isNaN(value) || value <= 0) {
+                alert("Please enter a valid name and positive point value.");
+                return;
+            }
+            
+            gameState[team === 1 ? 'score1' : 'score2'] += 50; // Bonus points
+            gameState.animals[name] = value;
+            
+            nameEl.value = '';
+            valueEl.value = '';
+            hideActiveModal();
+            populateAnimalDropdown();
+            updateAndSave();
+            checkForWinner();
+        }
+
+        function checkForWinner() {
+            const winningScore = 1000;
+            if (gameState.score1 >= winningScore || gameState.score2 >= winningScore) {
+                const winner = gameState.score1 >= winningScore ? 'Team 1' : 'Team 2';
+                document.getElementById('winner-text').textContent = `${winner} Wins!`;
+                showModal('winner-modal');
+            }
+        }
+        
+        function resetGame() {
+            hideActiveModal();
+            localStorage.removeItem('animalCarGameState');
+            initializeGameState();
+            populateAnimalDropdown();
+            updateScoresUI();
+            showMainScreen('home-screen');
+        }
+
+        // --- LOCAL STORAGE & INITIALIZATION ---
+        function saveGameState() {
+            localStorage.setItem('animalCarGameState', JSON.stringify(gameState));
+        }
+
+        function updateAndSave() {
+            updateScoresUI();
+            saveGameState();
+        }
+
+        window.onload = () => {
+            const savedState = localStorage.getItem('animalCarGameState');
+            if (savedState) {
+                gameState = JSON.parse(savedState);
+                showMainScreen('game-screen');
+            } else {
+                initializeGameState();
+                showMainScreen('home-screen');
+            }
+            populateAnimalDropdown();
+            updateScoresUI();
+        };
+
+        // --- PWA Service Worker ---
+        if ('serviceWorker' in navigator) {
+            const swContent = `
+                const CACHE_NAME = 'animal-car-game-v4';
+                const urlsToCache = [
+                    './',
+                    'https://cdn.tailwindcss.com',
+                    'https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600;700&display=swap',
+                    'https://placehold.co/192x192/A16207/FEF3C7?text=ACG',
+                    'https://placehold.co/512x512/A16207/FEF3C7?text=ACG'
+                ];
+                self.addEventListener('install', event => {
+                    self.skipWaiting();
+                    event.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                    );
+                });
+                self.addEventListener('activate', event => {
+                    event.waitUntil(clients.claim());
+                });
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request).then(response => {
+                            return response || fetch(event.request);
+                        })
+                    );
+                });
+            `;
+            const swBlob = new Blob([swContent], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(swBlob);
+            
+            // **FIX 2: Handle registration error gracefully**
+            try {
+                navigator.serviceWorker.register(swURL, { scope: './' })
+                    .then(reg => console.log('Service worker registered successfully.'))
+                    .catch(err => console.log('Service worker registration failed (expected in this environment):', err));
+            } catch (e) {
+                console.log('Service worker registration not possible in this context (expected).');
+            }
+        }
+        
+        const manifestContent = {
+            "name": "Animal Car Game", "short_name": "Car Game", "start_url": ".",
+            "display": "standalone", "background_color": "#A16207", "theme_color": "#A16207",
+            "description": "A score calculator for The Animal Car Game.",
+            "icons": [{"src": "https://placehold.co/192x192/A16207/FEF3C7?text=ACG", "sizes": "192x192", "type": "image/png"},
+                      {"src": "https://placehold.co/512x512/A16207/FEF3C7?text=ACG", "sizes": "512x512", "type": "image/png"}]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestContent)], { type: 'application/json' });
+        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(manifestBlob);
+    </script>
+</body>
+</html>

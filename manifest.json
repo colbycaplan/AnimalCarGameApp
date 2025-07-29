@@ -1,22 +1,26 @@
 {
-    "name": "Animal Car Game",
+    "name": "The Animal Car Game",
     "short_name": "Car Game",
-    "start_url": ".",
+    "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#A16207",
     "theme_color": "#A16207",
-    "description": "A score calculator for The Animal Car Game.",
+    "description": "A simple score calculator for The Animal Car Game. The game itself was created by humans, but **THE APP WAS CREATED BY AI**.",
     "orientation": "portrait-primary",
-    "categories": ["games", "entertainment", "lifestyle"],
+    "categories": [
+        "games",
+        "entertainment",
+        "lifestyle"
+    ],
     "icons": [
         {
-            "src": "https://placehold.co/192x192/A16207/FEF3C7?text=ACG",
-            "sizes": "192x192",
+            "src": "./images/icon-1024.png",
+            "sizes": "1024x1024",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://placehold.co/512x512/A16207/FEF3C7?text=ACG",
+            "src": "./images/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
@@ -24,14 +28,14 @@
     ],
     "screenshots": [
         {
-            "src": "https://i.imgur.com/example-screenshot-1.png",
+            "src": "./images/screenshot1.png",
             "sizes": "1080x1920",
             "type": "image/png",
             "form_factor": "narrow",
-            "label": "Game Home Screen"
+            "label": "Rules Screen"
         },
         {
-            "src": "https://i.imgur.com/example-screenshot-2.png",
+            "src": "./images/screenshot2.png",
             "sizes": "1080x1920",
             "type": "image/png",
             "form_factor": "narrow",
